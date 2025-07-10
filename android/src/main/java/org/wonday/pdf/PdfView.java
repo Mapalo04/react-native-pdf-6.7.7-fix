@@ -12,8 +12,6 @@ import java.io.File;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.SizeF;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +56,7 @@ import com.google.gson.Gson;
 import org.wonday.pdf.events.TopChangeEvent;
 
 public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnDrawListener,OnPageScrollListener, LinkHandler {
+    private boolean isPdfLoaded = false; // used to check if pdf is loaded, so we can draw it again
     private int page = 1;               // start from 1
     private boolean horizontal = false;
     private float scale = 1;
@@ -107,7 +106,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         TopChangeEvent tce = new TopChangeEvent(surfaceId, getId(), event);
 
         if (dispatcher != null) {
-            new Handler(Looper.getMainLooper()).postDelayed(() -> dispatcher.dispatchEvent(tce), 10);
+            dispatcher.dispatchEvent(tce);
         }
 
 //        ReactContext reactContext = (ReactContext)this.getContext();
@@ -141,6 +140,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
     @Override
     public void loadComplete(int numberOfPages) {
+        this.isPdfLoaded = true;
         SizeF pageSize = getPageSize(0);
         float width = pageSize.getWidth();
         float height = pageSize.getHeight();
@@ -160,6 +160,14 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
         if (dispatcher != null) {
             dispatcher.dispatchEvent(tce);
+        }
+
+
+       
+
+
+        if ( this.page > 1) {
+            this.jumpTo(this.page - 1, true);
         }
         //        ReactContext reactContext = (ReactContext)this.getContext();
 //        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
@@ -349,6 +357,12 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     // page start from 1
     public void setPage(int page) {
         this.page = page>1?page:1;
+
+        if (this.isPdfLoaded) {
+            this.jumpTo(this.page - 1, true);
+        } else {
+            showLog(format("setPage %s, pdf not loaded", this.page));
+        }
     }
 
     public void setScale(float scale) {

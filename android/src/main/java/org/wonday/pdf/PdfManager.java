@@ -21,6 +21,9 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
+import java.util.Map;
+import com.facebook.react.common.MapBuilder;
+
 import com.facebook.react.uimanager.ViewManagerDelegate;
 import com.facebook.react.viewmanagers.RNPDFPdfViewManagerDelegate;
 import com.facebook.react.viewmanagers.RNPDFPdfViewManagerInterface;
@@ -158,7 +161,7 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     // use `receiveCommand` method and call this one there
     @Override
     public void setNativePage(PdfView view, int page) {
-        pdfView.setPage(page);
+        view.setPage(page);
     }
 
     @Override
@@ -176,5 +179,7 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
         super.onAfterUpdateTransaction(pdfView);
         pdfView.drawPdf();
     }
+
+    
 
 }
